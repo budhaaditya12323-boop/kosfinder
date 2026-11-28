@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'providers/auth_provider.dart';
+import 'providers/owner_kos_provider.dart';
 
 // Import file yang sudah dibuat AI
 import 'core/config/app_config.dart';
@@ -30,6 +31,7 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => KosProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => OwnerKosProvider()),
       ],
       child: const MyApp(),
     ),
