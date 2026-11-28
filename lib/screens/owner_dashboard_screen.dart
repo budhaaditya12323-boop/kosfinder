@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/owner_kos_provider.dart';
 import '../widgets/owner_kos_card.dart';
+import 'kos_form_screen.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -74,20 +75,43 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Dashboard Kos'),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+                appBar: AppBar(
+          title: const Text(
+            'Dashboard Kos',
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+          ),
+          // 1. Gunakan Gradient yang senada dengan tema hijau
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.green.shade700, Colors.green.shade500],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+          ),
           foregroundColor: Colors.white,
+          elevation: 0,
           automaticallyImplyLeading: false,
+          // 2. Tombol logout dibuat lebih rapi dengan tooltip
           actions: [
             IconButton(
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.power_settings_new_rounded),
               tooltip: 'Logout',
               onPressed: () => _handleLogout(context),
             ),
+            const SizedBox(width: 8),
           ],
+          // 3. TabBar disesuaikan agar menyatu dengan gradient
           bottom: const TabBar(
             indicatorColor: Colors.white,
+            indicatorWeight: 3,
+            labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),
+            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white70),
             tabs: [
               Tab(text: 'Kos Aktif'),
               Tab(text: 'Arsip'),
@@ -114,10 +138,20 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                   ),
                 ],
               ),
+  
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            // TODO: Navigasi ke form Tambah Kos (T17)
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Form Tambah Kos akan dibuat di T17')));
+            // Navigasi ke form Tambah Kos
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const KosFormScreen()),
+            ).then((_) {
+               // Refresh list setelah kembali dari form
+               final ownerId = context.read<AuthProvider>().currentUser?.id;
+               if (ownerId != null) {
+                 context.read<OwnerKosProvider>().loadOwnerKos(ownerId);
+               }
+            });
           },
           icon: const Icon(Icons.add),
           label: const Text('Tambah Kos'),
@@ -141,11 +175,22 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       itemCount: list.length,
       itemBuilder: (context, index) {
         final kos = list[index];
-        return OwnerKosCard(
+                return OwnerKosCard(
           kos: kos,
           onEdit: () {
-             // TODO: Navigasi ke form Edit Kos (T18)
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Form Edit Kos akan dibuat di T18')));
+            // Navigasi ke KosFormScreen dengan membawa data kos yang akan diedit
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => KosFormScreen(existingKos: kos),
+              ),
+            ).then((_) {
+              // Setelah form ditutup, refresh data agar perubahan langsung terlihat
+              final ownerId = context.read<AuthProvider>().currentUser?.id;
+              if (ownerId != null) {
+                context.read<OwnerKosProvider>().loadOwnerKos(ownerId);
+              }
+            });
           },
           onDelete: () => _handleDeleteKos(context, kos.id, ownerId),
           onRestore: () => _handleRestoreKos(context, kos.id, ownerId),
