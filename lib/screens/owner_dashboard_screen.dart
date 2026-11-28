@@ -33,37 +33,95 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     }
   }
 
-  void _handleDeleteKos(BuildContext context, String id, String ownerId) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Hapus Kos?'),
-        content: const Text('Kos ini akan dipindahkan ke arsip (soft-delete). Anda dapat memulihkannya kembali nanti.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true), 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text('Hapus'),
+    void _handleDeleteKos(BuildContext context, String id, String ownerId) async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Hapus Kos?'),
+          content: const Text(
+            'Kos ini akan dipindahkan ke arsip (soft-delete). Anda dapat memulihkannya kembali nanti dari tab Arsip.',
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Hapus'),
+            ),
+          ],
+        ),
+      );
 
-    if (confirm == true && context.mounted) {
-      final success = await context.read<OwnerKosProvider>().softDeleteKos(id, ownerId);
-      if (success && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kos berhasil dihapus.')));
+      if (confirm == true && context.mounted) {
+        // Tampilkan loading (opsional, tapi disarankan)
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const Center(child: CircularProgressIndicator()),
+        );
+
+        final provider = context.read<OwnerKosProvider>();
+        final success = await provider.softDeleteKos(id, ownerId);
+
+        if (context.mounted) {
+          Navigator.pop(context); // Tutup dialog loading
+
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Kos berhasil dipindahkan ke arsip.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            // (US07-AC2) Penanganan Error Koneksi
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(provider.errorMessage ?? 'Gagal menghapus kos. Periksa koneksi internet Anda'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       }
     }
-  }
 
-  void _handleRestoreKos(BuildContext context, String id, String ownerId) async {
-    final success = await context.read<OwnerKosProvider>().restoreKos(id, ownerId);
-    if (success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kos berhasil dipulihkan.')));
+    void _handleRestoreKos(BuildContext context, String id, String ownerId) async {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final provider = context.read<OwnerKosProvider>();
+      final success = await provider.restoreKos(id, ownerId);
+
+      if (context.mounted) {
+        Navigator.pop(context); // Tutup loading
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kos berhasil dipulihkan ke daftar aktif.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(provider.errorMessage ?? 'Gagal memulihkan kos.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
-  }
 
   @override
   Widget build(BuildContext context) {

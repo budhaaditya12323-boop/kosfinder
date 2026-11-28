@@ -110,5 +110,22 @@ void main() {
       expect(provider.activeKosList.length, 1);
       expect(provider.archivedKosList.length, 0);
     });
+    test('softDeleteKos menangani error koneksi (US07-AC2)', () async {
+      // Buat fake repository yang sengaja melempar error
+      final errorRepo = FakeErrorRepository();
+      final errorProvider = OwnerKosProvider(repository: errorRepo);
+
+      final result = await errorProvider.softDeleteKos('kos-1', 'owner-1');
+
+      expect(result, isFalse);
+      expect(errorProvider.status, OwnerKosStatus.error);
+      expect(errorProvider.errorMessage, contains('Gagal menghapus kos'));
+    });
   });
+}
+class FakeErrorRepository extends KosRepository {
+  @override
+  Future<void> softDeleteKos(String id, {bool isActive = false}) async {
+    throw Exception('Koneksi terputus');
+  }
 }
