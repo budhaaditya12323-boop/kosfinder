@@ -95,4 +95,14 @@ class KosRepository {
         })
         .eq('id', id);
   }
+    /// Memperbarui jumlah kamar tersedia secara cepat (Quick Update - T20)
+  Future<void> updateRoomAvailable(String id, int newCount) async {
+    await _supabase
+        .from('kos')
+        .update({
+          'room_available': newCount,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', id);
+  }
 }

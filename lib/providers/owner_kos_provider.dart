@@ -124,4 +124,31 @@ class OwnerKosProvider extends ChangeNotifier {
       return false;
     }
   }
+
+    /// Memperbarui jumlah kamar secara cepat tanpa harus membuka form edit (T20)
+  Future<bool> updateRoomAvailable(String id, int newCount, String ownerId) async {
+    // Jangan tampilkan loading penuh jika hanya update cepat (opsional)
+    // _status = OwnerKosStatus.loading; 
+    // notifyListeners();
+
+    try {
+      await _repository.updateRoomAvailable(id, newCount);
+      
+      // Update state lokal secara instan agar UI langsung berubah tanpa nunggu refresh database
+      final index = _activeKosList.indexWhere((k) => k.id == id);
+      if (index != -1) {
+        _activeKosList[index] = _activeKosList[index].copyWith(roomAvailable: newCount);
+        notifyListeners();
+      }
+      
+      // Refresh dari database di belakang layar untuk memastikan sinkronisasi
+      await loadOwnerKos(ownerId);
+      return true;
+    } catch (e) {
+      _errorMessage = 'Gagal update kamar. Periksa koneksi.';
+      debugPrint('ERROR UPDATE ROOM: $e');
+      notifyListeners();
+      return false;
+    }
+  }
 }
