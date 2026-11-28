@@ -6,6 +6,10 @@ class OwnerKosCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onRestore;
+  
+  // TAMBAHKAN PARAMETER INI UNTUK T21
+  final VoidCallback? onRoomDecrease;
+  final VoidCallback? onRoomIncrease;
 
   const OwnerKosCard({
     super.key,
@@ -13,6 +17,8 @@ class OwnerKosCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onRestore,
+    this.onRoomDecrease,
+    this.onRoomIncrease,
   });
 
   @override
@@ -37,6 +43,7 @@ class OwnerKosCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                // STATUS KAMAR
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -60,29 +67,62 @@ class OwnerKosCard extends StatelessWidget {
             Text(kos.formattedPrice, style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.bold)),
             const Divider(height: 24),
             
-            // Tombol Aksi
+            // TOMBOL AKSI & QUICK STEPPER
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (!kos.isActive)
-                  TextButton.icon(
-                    onPressed: onRestore,
-                    icon: const Icon(Icons.restore, color: Colors.blue, size: 20),
-                    label: const Text('Pulihkan', style: TextStyle(color: Colors.blue)),
+                // QUICK STEPPER (Hanya muncul jika kos aktif)
+                if (kos.isActive && onRoomDecrease != null && onRoomIncrease != null)
+                  Row(
+                    children: [
+                      const Text('Update Kamar: ', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      IconButton(
+                        onPressed: kos.roomAvailable > 0 ? onRoomDecrease : null,
+                        icon: const Icon(Icons.remove_circle_outline, color: Colors.orange),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          '${kos.roomAvailable}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: onRoomIncrease,
+                        icon: const Icon(Icons.add_circle_outline, color: Colors.green),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   )
-                else ...[
-                  TextButton.icon(
-                    onPressed: onEdit,
-                    icon: const Icon(Icons.edit, color: Colors.orange, size: 20),
-                    label: const Text('Edit', style: TextStyle(color: Colors.orange)),
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: onDelete,
-                    icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                    label: const Text('Hapus', style: TextStyle(color: Colors.red)),
-                  ),
-                ]
+                else
+                  const SizedBox.shrink(),
+
+                // TOMBOL EDIT & HAPUS
+                Row(
+                  children: [
+                    if (!kos.isActive)
+                      TextButton.icon(
+                        onPressed: onRestore,
+                        icon: const Icon(Icons.restore, color: Colors.blue, size: 20),
+                        label: const Text('Pulihkan', style: TextStyle(color: Colors.blue)),
+                      )
+                    else ...[
+                      IconButton(
+                        onPressed: onEdit,
+                        icon: const Icon(Icons.edit, color: Colors.orange, size: 20),
+                        tooltip: 'Edit Detail',
+                      ),
+                      IconButton(
+                        onPressed: onDelete,
+                        icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                        tooltip: 'Hapus / Arsipkan',
+                      ),
+                    ]
+                  ],
+                ),
               ],
             )
           ],

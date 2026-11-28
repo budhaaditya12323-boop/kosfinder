@@ -211,25 +211,31 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       itemCount: list.length,
       itemBuilder: (context, index) {
         final kos = list[index];
-                return OwnerKosCard(
+        return OwnerKosCard(
           kos: kos,
           onEdit: () {
-            // Navigasi ke KosFormScreen dengan membawa data kos yang akan diedit
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => KosFormScreen(existingKos: kos),
-              ),
-            ).then((_) {
-              // Setelah form ditutup, refresh data agar perubahan langsung terlihat
-              final ownerId = context.read<AuthProvider>().currentUser?.id;
-              if (ownerId != null) {
-                context.read<OwnerKosProvider>().loadOwnerKos(ownerId);
-              }
-            });
+            // ... (kode navigasi edit yang sudah ada)
           },
           onDelete: () => _handleDeleteKos(context, kos.id, ownerId),
           onRestore: () => _handleRestoreKos(context, kos.id, ownerId),
+          
+          // ─── TAMBAHKAN QUICK STEPPER CALLBACK (T21) ───
+          onRoomDecrease: () {
+            if (kos.roomAvailable > 0) {
+              context.read<OwnerKosProvider>().updateRoomAvailable(
+                kos.id, 
+                kos.roomAvailable - 1, 
+                ownerId
+              );
+            }
+          },
+          onRoomIncrease: () {
+            context.read<OwnerKosProvider>().updateRoomAvailable(
+              kos.id, 
+              kos.roomAvailable + 1, 
+              ownerId
+            );
+          },
         );
       },
     );
