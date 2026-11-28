@@ -108,7 +108,7 @@ class KosProvider extends ChangeNotifier {
         _status = KosStateStatus.success;
       }
     } catch (e) {
-      print('ERROR ASLI: $e');
+      debugPrint('ERROR ASLI: $e');
       _kosList = [];
       _status = KosStateStatus.error;
       _errorMessage = 'Gagal memuat data. Periksa koneksi internet Anda';
