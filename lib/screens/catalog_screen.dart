@@ -77,6 +77,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 onSearchChanged: (query) => provider.setSearchQuery(query),
                 onGenderSelected: (gender) => provider.setSelectedGender(gender),
                 onClearSearch: () => provider.setSearchQuery(''),
+                onPriceChanged: (val) => provider.setMaxPrice(val),
               ),
 
               // Content Area

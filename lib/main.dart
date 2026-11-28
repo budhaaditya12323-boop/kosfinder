@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'core/config/app_config.dart';
 import 'providers/kos_provider.dart';
 import 'screens/catalog_screen.dart';
+import 'screens/owner_dashboard_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +56,9 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: const CatalogScreen(),
+        routes: {
+          '/owner-dashboard': (_) => const OwnerDashboardScreen(),
+        },
       ),
     );
   }
