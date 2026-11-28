@@ -5,6 +5,7 @@ import '../widgets/filter_bar.dart';
 import '../widgets/kos_card.dart';
 import 'about_screen.dart';
 import 'kos_detail_screen.dart';
+import 'login_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -37,6 +38,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            key: const Key('owner_login_button'),
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Masuk Pemilik Kos',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             key: const Key('about_button'),
             icon: const Icon(Icons.info_outline),
