@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/kos_provider.dart';
 import '../widgets/kos_card.dart';
 import 'about_screen.dart';
+import 'kos_detail_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -157,7 +158,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 return KosCard(
                   kos: kos,
                   onTap: () {
-                    // Navigate to detail screen in T07
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => KosDetailScreen(kos: kos),
+                      ),
+                    );
                   },
                 );
               },
